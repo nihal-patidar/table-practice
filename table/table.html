@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Table Practice</title>
+
+<style>
+  body {
+    font-family: Arial;
+    background: #0f172a;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
+    background: #1e293b;
+    border-radius: 15px;
+    text-align: center;
+  }
+
+  .question {
+    font-size: 32px;
+    margin: 20px 0;
+  }
+
+  input {
+    width: 100%;
+    padding: 15px;
+    font-size: 20px;
+    border-radius: 10px;
+    border: none;
+    text-align: center;
+    outline: none;
+    margin-top: 10px;
+  }
+
+  .controls input {
+    width: 45%;
+    margin: 5px;
+  }
+
+  button {
+    padding: 10px;
+    margin-top: 10px;
+    width: 100%;
+    border: none;
+    border-radius: 10px;
+    background: #4f46e5;
+    color: white;
+  }
+
+  .keyboard {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 15px;
+  }
+
+  .key {
+    padding: 15px;
+    background: #334155;
+    border-radius: 10px;
+    font-size: 20px;
+    cursor: pointer;
+  }
+
+  .key:active {
+    background: #475569;
+  }
+
+  @media (max-width: 500px) {
+    .container {
+      height: 100vh;
+      border-radius: 0;
+    }
+  }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h2>Table Practice</h2>
+
+  <div class="controls">
+    <input type="number" id="minTable" placeholder="Min (e.g. 2)" />
+    <input type="number" id="maxTable" placeholder="Max (e.g. 20)" />
+    <button onclick="startRange()">Start Range</button>
+
+    <input type="number" id="singleTable" placeholder="Single Table (e.g. 7)" />
+    <button onclick="startSingle()">Practice One</button>
+  </div>
+
+  <div class="question" id="question">Press Start</div>
+
+  <!-- readonly disables mobile keyboard -->
+  <input id="answer" type="text" readonly autofocus />
+
+  <div class="keyboard" id="keyboard"></div>
+</div>
+
+<script>
+let num1, num2;
+let min = 1, max = 10;
+let mode = "random";
+let fixedTable = null;
+
+const answerInput = document.getElementById("answer");
+
+function getRandom(a, b) {
+  return Math.floor(Math.random() * (b - a + 1)) + a;
+}
+
+function generateQuestion() {
+  if (mode === "single") {
+    num1 = fixedTable;
+  } else if (mode === "range") {
+    num1 = getRandom(min, max);
+  } else {
+    num1 = getRandom(1, 10);
+  }
+
+  // 🔥 ALWAYS 1–10 (table logic)
+  num2 = getRandom(1, 10);
+
+  document.getElementById("question").innerText = `${num1} × ${num2}`;
+  answerInput.value = "";
+}
+
+function startRange() {
+  let minVal = parseInt(document.getElementById("minTable").value);
+  let maxVal = parseInt(document.getElementById("maxTable").value);
+
+  if (isNaN(minVal) || isNaN(maxVal) || minVal > maxVal) {
+    alert("Enter valid range (min <= max)");
+    return;
+  }
+
+  min = minVal;
+  max = maxVal;
+  mode = "range";
+  generateQuestion();
+}
+
+function startSingle() {
+  let val = parseInt(document.getElementById("singleTable").value);
+
+  if (isNaN(val)) {
+    alert("Enter valid table number");
+    return;
+  }
+
+  fixedTable = val;
+  mode = "single";
+  generateQuestion();
+}
+
+// Answer check
+function checkAnswer() {
+  if (parseInt(answerInput.value) === num1 * num2) {
+    generateQuestion();
+  }
+}
+
+// Keyboard
+const keyboard = document.getElementById("keyboard");
+
+for (let i = 1; i <= 9; i++) createKey(i);
+createKey(0);
+
+// delete key
+let del = document.createElement("div");
+del.className = "key";
+del.innerText = "⌫";
+del.onclick = () => {
+  answerInput.value = answerInput.value.slice(0, -1);
+};
+keyboard.appendChild(del);
+
+function createKey(num) {
+  let key = document.createElement("div");
+  key.className = "key";
+  key.innerText = num;
+  key.onclick = () => {
+    answerInput.value += num;
+    checkAnswer();
+  };
+  keyboard.appendChild(key);
+}
+
+// start default
+generateQuestion();
+</script>
+
+</body>
+</html>
